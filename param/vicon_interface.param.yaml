@@ -1,0 +1,24 @@
+/**:
+  ros__parameters:
+    # vicon_tracker_ip: "10.42.0.52"
+    # vicon_tracker_ip: "192.168.3.137"
+    # vicon_tracker_ip: "192.168.137.1"
+    vicon_tracker_ip: "128.2.184.3"
+    # vicon_object_name: "lecar_wand"
+    # vicon_object_name: "lecar_car_car"
+    # vicon_object_name: "lecar_car_car_small"
+    # vicon_object_name: "lecar"
+    vicon_object_name: "lecar_go2"
+    odom_frame_id: "map"
+    odom_child_frame_id: "base_link"
+    poll_vicon_dt: 0.02
+    filtered_odom_dt: 0.02
+    rolling_window_size: 5
+    min_states: [-.inf, -.inf, -.inf, # px, py, pz
+                -.inf, -.inf, -.inf, # roll, pitch, yaw
+                -.inf, -.inf, -.inf, # vx, vy, vz (body frame)
+                -.inf, -.inf, -.inf,] # v_roll, v_pitch, v_yaw (body frame)
+    max_states: [.inf, .inf, .inf, # px, py, pz
+                .inf, .inf, .inf, # roll, pitch, yaw
+                .inf, .inf, .inf, # vx, vy, vz (body frame)
+                .inf, .inf, .inf,] # v_roll, v_pitch, v_yaw (body frame)
