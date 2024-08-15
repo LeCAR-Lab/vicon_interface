@@ -83,9 +83,6 @@ class ViconStreamNode(Node):
             self.get_logger().fatal(f"Connection to {self.viacon_tracker_ip_} failed")
             raise Exception(f"Connection to {self.viacon_tracker_ip_} failed")
 
-        self.mpc_state_publisher_ = self.create_publisher(
-            VehicleStateMsg, "vicon_mpc_state", 1
-        )
         self.pose_publisher_ = self.create_publisher(
             PoseWithCovarianceStamped, "vicon_pose", 1
         )
@@ -155,25 +152,8 @@ class ViconStreamNode(Node):
             states = np.clip(states, self.min_states_, self.max_states_)
             x, y, z, roll, pitch, yaw, v_body[0], v_body[1], v_body[2], ang_v_body[0], ang_v_body[1], ang_v_body[2] = states
 
-            mpc_state_msg = VehicleStateMsg()
-            mpc_state_msg.x.x = x
-            mpc_state_msg.x.y = y
-            mpc_state_msg.x.z = z
-            mpc_state_msg.e.psi = yaw
-            mpc_state_msg.e.phi = roll
-            mpc_state_msg.e.theta = pitch
-            mpc_state_msg.v.v_long = v_body[0]
-            mpc_state_msg.v.v_tran = v_body[1]
-            mpc_state_msg.v.v_n = v_body[2]
-            mpc_state_msg.w.w_psi = ang_v_body[2]
-            mpc_state_msg.w.w_phi = ang_v_body[0]
-            mpc_state_msg.w.w_theta = ang_v_body[1]
-            mpc_state_msg.header.stamp = self.get_clock().now().to_msg()
-            mpc_state_msg.header.frame_id = self.parent_frame_id_
-            self.mpc_state_publisher_.publish(mpc_state_msg)
-
             odom_msg = Odometry()
-            odom_msg.header.stamp = mpc_state_msg.header.stamp
+            odom_msg.header.stamp = self.get_clock().now().to_msg()
             odom_msg.header.frame_id = self.parent_frame_id_
             odom_msg.child_frame_id = self.child_frame_id_
             odom_msg.pose.pose.position.x = x
@@ -200,12 +180,12 @@ class ViconStreamNode(Node):
             pose_msg.pose.pose.orientation.y = q[1]
             pose_msg.pose.pose.orientation.z = q[2]
             pose_msg.pose.pose.orientation.w = q[3]
-            pose_msg.header.stamp = mpc_state_msg.header.stamp
+            pose_msg.header.stamp = odom_msg.header.stamp
             pose_msg.header.frame_id = self.parent_frame_id_
             self.pose_publisher_.publish(pose_msg)
 
             transform = TransformStamped()
-            transform.header.stamp = mpc_state_msg.header.stamp
+            transform.header.stamp = odom_msg.header.stamp
             transform.header.frame_id = self.parent_frame_id_
             transform.child_frame_id = self.child_frame_id_
             transform.transform.translation.x = x
