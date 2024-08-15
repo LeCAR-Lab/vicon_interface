@@ -15,7 +15,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'param'), glob('param/*.yaml')),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'pyvicon-datastream', 'tf_transformations'],
     zip_safe=True,
     maintainer='Haoru Xue',
     maintainer_email='haorux@andrew.cmu.edu',
