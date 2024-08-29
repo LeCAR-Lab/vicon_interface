@@ -86,9 +86,9 @@ class ViconStreamNode(Node):
         self.pose_publisher_ = self.create_publisher(
             PoseWithCovarianceStamped, "vicon_pose", 1
         )
-        self.odometry_publisher_ = self.create_publisher(Odometry, "odometry", 1)
+        self.odometry_publisher_ = self.create_publisher(Odometry, "odometry/vicon", 1)
         self.filtered_odometry_publisher_ = self.create_publisher(
-            Odometry, "odometry/filtered", 1
+            Odometry, "odometry/vicon/filtered", 1
         )
         self.latency_publisher_ = self.create_publisher(Float32, "vicon_latency", 1)
         self.tf_broadcaster_ = TransformBroadcaster(self)
@@ -110,6 +110,7 @@ class ViconStreamNode(Node):
         while True:
             # import time
             begin = time.monotonic()
+            print("tracking", self.viacon_object_name_)
             position = self.tracker_.get_position(self.viacon_object_name_)
             end_1 = time.monotonic()
             # if subsample_counter % 4 == 0:
@@ -130,6 +131,10 @@ class ViconStreamNode(Node):
             if frame_num == self.last_frame_num_:
                 return
             self.last_frame_num_ = frame_num
+            print("position", position)
+            # if len(position[2]) == 0:
+            #     print("no data")
+            #     continue
             try:
                 obj = position[2][0]
                 _, _, x, y, z, roll, pitch, yaw = obj
@@ -139,6 +144,8 @@ class ViconStreamNode(Node):
             except Exception as e:
                 print(e)
                 self.get_logger().warn(f"Vicon dropped a frame", throttle_duration_sec=1.0)
+                
+            print("here")
 
             v_body, ang_v_body, _ = self.buffer_.get_latest_velocity()
             if _ == 0:
@@ -195,7 +202,7 @@ class ViconStreamNode(Node):
             transform.transform.rotation.y = q[1]
             transform.transform.rotation.z = q[2]
             transform.transform.rotation.w = q[3]
-            self.tf_broadcaster_.sendTransform(transform)
+            # self.tf_broadcaster_.sendTransform(transform)
 
             latency_msg = Float32()
             latency_msg.data = latency
