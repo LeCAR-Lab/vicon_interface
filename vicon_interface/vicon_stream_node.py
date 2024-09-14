@@ -68,9 +68,7 @@ class ViconStreamNode(Node):
             .integer_value
         )
         self.publish_tf_ = (
-            self.declare_parameter("publish_tf", True)
-            .get_parameter_value()
-            .bool_value
+            self.declare_parameter("publish_tf", True).get_parameter_value().bool_value
         )
 
         self.buffer_ = ViconDataBuffer(6, self.rolling_window_size_)
@@ -106,9 +104,11 @@ class ViconStreamNode(Node):
         self.last_frame_num_ = 0
         self.poll_vicon_thread = Thread(target=self.timer_callback)
         self.poll_vicon_thread.start()
-        
+
         self.filtered_odom_timer_ = self.create_timer(
-            self.filtered_odom_dt_, self.filtered_odom_timer_callback, self.cb_group_filtered_odom_
+            self.filtered_odom_dt_,
+            self.filtered_odom_timer_callback,
+            self.cb_group_filtered_odom_,
         )
 
     def timer_callback(self):
@@ -139,12 +139,14 @@ class ViconStreamNode(Node):
             try:
                 obj = position[2][0]
                 _, _, x, y, z, roll, pitch, yaw = obj
-                q = tf_transformations.quaternion_from_euler(roll, pitch, yaw, 'rxyz')
-                roll, pitch, yaw = tf_transformations.euler_from_quaternion(q, 'sxyz')
+                q = tf_transformations.quaternion_from_euler(roll, pitch, yaw, "rxyz")
+                roll, pitch, yaw = tf_transformations.euler_from_quaternion(q, "sxyz")
                 self.buffer_.add_pose((x, y, z, roll, pitch, yaw), latency)
             except Exception as e:
                 print(e)
-                self.get_logger().warn(f"Vicon dropped a frame", throttle_duration_sec=1.0)
+                self.get_logger().warn(
+                    f"Vicon dropped a frame", throttle_duration_sec=1.0
+                )
 
             v_body, ang_v_body, _ = self.buffer_.get_latest_velocity()
             if _ == 0:
@@ -153,10 +155,36 @@ class ViconStreamNode(Node):
             x, y, z, roll, pitch, yaw = position
 
             states = np.array(
-                [x, y, z, roll, pitch, yaw, v_body[0], v_body[1], v_body[2], ang_v_body[0], ang_v_body[1], ang_v_body[2]]
+                [
+                    x,
+                    y,
+                    z,
+                    roll,
+                    pitch,
+                    yaw,
+                    v_body[0],
+                    v_body[1],
+                    v_body[2],
+                    ang_v_body[0],
+                    ang_v_body[1],
+                    ang_v_body[2],
+                ]
             )
             states = np.clip(states, self.min_states_, self.max_states_)
-            x, y, z, roll, pitch, yaw, v_body[0], v_body[1], v_body[2], ang_v_body[0], ang_v_body[1], ang_v_body[2] = states
+            (
+                x,
+                y,
+                z,
+                roll,
+                pitch,
+                yaw,
+                v_body[0],
+                v_body[1],
+                v_body[2],
+                ang_v_body[0],
+                ang_v_body[1],
+                ang_v_body[2],
+            ) = states
 
             odom_msg = Odometry()
             odom_msg.header.stamp = self.get_clock().now().to_msg()
@@ -220,10 +248,36 @@ class ViconStreamNode(Node):
         x, y, z = position
         roll, pitch, yaw = orientation
         states = np.array(
-            [x, y, z, roll, pitch, yaw, v_body[0], v_body[1], v_body[2], ang_v_body[0], ang_v_body[1], ang_v_body[2]]
+            [
+                x,
+                y,
+                z,
+                roll,
+                pitch,
+                yaw,
+                v_body[0],
+                v_body[1],
+                v_body[2],
+                ang_v_body[0],
+                ang_v_body[1],
+                ang_v_body[2],
+            ]
         )
         states = np.clip(states, self.min_states_, self.max_states_)
-        x, y, z, roll, pitch, yaw, v_body[0], v_body[1], v_body[2], ang_v_body[0], ang_v_body[1], ang_v_body[2] = states
+        (
+            x,
+            y,
+            z,
+            roll,
+            pitch,
+            yaw,
+            v_body[0],
+            v_body[1],
+            v_body[2],
+            ang_v_body[0],
+            ang_v_body[1],
+            ang_v_body[2],
+        ) = states
 
         odom_msg = Odometry()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
@@ -244,6 +298,7 @@ class ViconStreamNode(Node):
         odom_msg.twist.twist.angular.y = ang_v_body[1]
         odom_msg.twist.twist.angular.z = ang_v_body[2]
         self.filtered_odometry_publisher_.publish(odom_msg)
+
 
 def main(args=None):
     rclpy.init(args=args)
