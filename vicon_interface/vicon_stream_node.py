@@ -67,6 +67,11 @@ class ViconStreamNode(Node):
             .get_parameter_value()
             .integer_value
         )
+        self.publish_tf_ = (
+            self.declare_parameter("publish_tf", True)
+            .get_parameter_value()
+            .bool_value
+        )
 
         self.buffer_ = ViconDataBuffer(6, self.rolling_window_size_)
         # self.buffer_ = ViconDataFilter(1.0, 0.01)
@@ -91,7 +96,8 @@ class ViconStreamNode(Node):
             Odometry, "odometry/filtered", 1
         )
         self.latency_publisher_ = self.create_publisher(Float32, "vicon_latency", 1)
-        self.tf_broadcaster_ = TransformBroadcaster(self)
+        if self.publish_tf_:
+            self.tf_broadcaster_ = TransformBroadcaster(self)
 
         self.cb_group_poll_viacon_ = MutuallyExclusiveCallbackGroup()
         self.cb_group_filtered_odom_ = MutuallyExclusiveCallbackGroup()
@@ -184,18 +190,19 @@ class ViconStreamNode(Node):
             pose_msg.header.frame_id = self.parent_frame_id_
             self.pose_publisher_.publish(pose_msg)
 
-            transform = TransformStamped()
-            transform.header.stamp = odom_msg.header.stamp
-            transform.header.frame_id = self.parent_frame_id_
-            transform.child_frame_id = self.child_frame_id_
-            transform.transform.translation.x = x
-            transform.transform.translation.y = y
-            transform.transform.translation.z = z
-            transform.transform.rotation.x = q[0]
-            transform.transform.rotation.y = q[1]
-            transform.transform.rotation.z = q[2]
-            transform.transform.rotation.w = q[3]
-            self.tf_broadcaster_.sendTransform(transform)
+            if self.publish_tf_:
+                transform = TransformStamped()
+                transform.header.stamp = odom_msg.header.stamp
+                transform.header.frame_id = self.parent_frame_id_
+                transform.child_frame_id = self.child_frame_id_
+                transform.transform.translation.x = x
+                transform.transform.translation.y = y
+                transform.transform.translation.z = z
+                transform.transform.rotation.x = q[0]
+                transform.transform.rotation.y = q[1]
+                transform.transform.rotation.z = q[2]
+                transform.transform.rotation.w = q[3]
+                self.tf_broadcaster_.sendTransform(transform)
 
             latency_msg = Float32()
             latency_msg.data = latency

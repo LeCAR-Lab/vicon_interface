@@ -22,3 +22,4 @@
                 .inf, .inf, .inf, # roll, pitch, yaw
                 .inf, .inf, .inf, # vx, vy, vz (body frame)
                 .inf, .inf, .inf,] # v_roll, v_pitch, v_yaw (body frame)
+    publish_tf: true
