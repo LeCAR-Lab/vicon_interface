@@ -40,10 +40,6 @@ class ViconDataBuffer:
             self.v_ = np.dot(R.T, self.v_)
             self.a_ = np.dot(R.T, self.a_)
 
-            if np.linalg.norm(self.v_) > 3.0:
-                print(self.past_poses_)
-                print(self.past_times_)
-
     def get_latest_pose(self):
         with self.lock_:
             if len(self.past_poses_) == 0:

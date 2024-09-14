@@ -11,8 +11,8 @@
     vicon_object_name: "lecar_go2"
     odom_frame_id: "map"
     odom_child_frame_id: "base_link"
-    poll_vicon_dt: 0.02
-    filtered_odom_dt: 0.02
+    poll_vicon_dt: 0.01
+    filtered_odom_dt: 0.01
     rolling_window_size: 5
     min_states: [-.inf, -.inf, -.inf, # px, py, pz
                 -.inf, -.inf, -.inf, # roll, pitch, yaw
