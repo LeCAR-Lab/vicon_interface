@@ -14,11 +14,13 @@ Please update `vicon_tracker_ip` and `vicon_object_name` to match the Vicon PC's
 # Build
 
 ```bash
+source /opt/ros/<ros_distro>/setup.bash
 colcon build
 ```
 
 # Run
 
 ```bash
+source install/setup.bash
 ros2 launch vicon_interface vicon_interface.launch.py
 ```
