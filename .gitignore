@@ -1,0 +1,8 @@
+
+
+build/
+log/
+install/
+*/install/
+vicon_interface/build
+__pycache__/
